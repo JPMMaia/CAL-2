@@ -90,7 +90,7 @@ void LZWCompresser::decompress(std::string fileIn, std::string fileOut)
 		word |= fin.get() << 8;
 
 		index = (index + nBits) % 16;
-		result.push_back((word & (0xFF >> 16 - index)) | remainder);
+		result.push_back((word & (0xFF >> (16 - index))) | remainder);
 		remainder = word >> index;
 	}
 
@@ -107,7 +107,7 @@ void LZWCompresser::writeFile(std::string filename)
 		max = *it > max ? *it : max;
 	}
 
-	unsigned char nBits = (unsigned char) (log(max) / log(2)) + 1;
+	unsigned char nBits = (unsigned char) (log((float)max) / log((float)2)) + 1;
 
 	ofstream fout = ofstream(filename, ios::out | ios::binary);
 

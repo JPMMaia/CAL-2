@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LZWCompresser.h"
+#include "Huffman.h"
 
 #include <string>
 
@@ -15,5 +16,6 @@ private:
 
 private:
 	LZWCompresser lzwCompresser;
+	HuffmanCompressor huffmanCompressor;
 
 };
