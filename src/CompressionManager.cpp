@@ -23,7 +23,7 @@ void CompressionManager::run(std::string fileIn, std::string fileOut)
 	cout << "\tOutput size:\t" << lzwSize << endl;
 	cout << "\tCompression:\t" << lzwRate << '%' << endl;
 
-	huffmanCompressor.compressFile(fileIn, fileOut, codeTable);
+	huffmanCompressor.compressFile(fileIn, fileOut);
 }
 
 int CompressionManager::getFileSize(std::string file)

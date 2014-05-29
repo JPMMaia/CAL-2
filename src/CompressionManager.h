@@ -17,5 +17,4 @@ private:
 private:
 	LZWCompresser lzwCompresser;
 	HuffmanCompressor huffmanCompressor;
-
 };

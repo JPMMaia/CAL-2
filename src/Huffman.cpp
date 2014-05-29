@@ -1,130 +1,83 @@
 #include "Huffman.h"
 
-using namespace std;
+void HuffmanCompressor::compressFile (std::string fileIn, std::string fileOut) {
+	std::string text = readFile (fileIn);
 
-int HuffmanCompressor::findSmaller (Node *array[], int differentFrom) {
-	int smaller;
-	int i = 0;
+	/* Construir a tabela de frequências */
 
-	while (array[i]->value == -1)
-		i++;
-	smaller = i;
+	int frequencies[UNIQUE_SYMBOLS] = {0};
 
-	if (i == differentFrom) {
-		i++;
+	
+	const char* ptr = text.c_str();
 
-		while (array[i]->value == -1)
-			i++;
-		smaller = i;
-	}
+	while (*ptr != '\0')
+		++frequencies[*ptr ++];
 
-	for (i=0; i < 128; i++) {
-		if (array[i]->value == -1)
-			continue;
-		if (i==differentFrom)
-			continue;
-		if (array[i]->value < array[smaller]->value)
-			smaller = i;
-	}
+	INode* root = BuildTree (frequencies);
 
-	return smaller;
+	HuffCodeMap codes;
+	GenerateCodes(root, HuffCode(), codes);
+	delete root;
+
+	for (HuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
+    {
+        std::cout << it->first << " ";
+        std::copy(it->second.begin(), it->second.end(),
+                  std::ostream_iterator<bool>(std::cout));
+        std::cout << std::endl;
+    }
+    return;
 }
 
-void HuffmanCompressor::buildHuffmanTree (Node **tree) {
-	Node *temp;
-	Node *array[128];
+std::string HuffmanCompressor::readFile (std::string fileIn) {
+	std::ifstream in (fileIn, std::ios::in | std::ios::binary);
 
-	int i, subTrees = 255;
-	int treeOne, treeTwo;
-
-	/* Inicializar o array de Nós */
-	for (i=0; i<128; i++) {
-		array[i] = new Node;
-		array[i]->value = englishLetterFrequencies[i];
-		array[i]->letter = (char) i;
-		array[i]->left = NULL;
-		array[i]->right = NULL;
+	if (in) {
+		std::string contents;
+		in.seekg(0,std::ios::end);
+		contents.resize(in.tellg());
+		in.seekg(0,std::ios::beg);
+		in.read(&contents[0], contents.size());
+		in.close();
+		return(contents);
 	}
-
-	/* Enquanto houver várias àrvores */
-	while (subTrees > 1) {
-		/* Encontrar */
-		treeOne = findSmaller(array, -1);
-		treeTwo = findSmaller(array, treeOne);
-
-		temp = array[treeOne];
-
-		array[treeOne] = new Node;
-		array[treeOne]->value = temp->value + array[treeTwo]->value;
-		array[treeOne]->letter = (char) 127;
-		array[treeOne]->left = array[treeTwo];
-		array[treeTwo]->value = -1;
-		subTrees--;
-	}
-
+	throw (errno);
 }
 
-void HuffmanCompressor::fillTable (int codeTable[], Node* tree, int Code) {
+INode * HuffmanCompressor::BuildTree (const int (&frequencies) [UNIQUE_SYMBOLS]) {
 
-	if (tree->letter < 27)
-		codeTable[(int)tree->letter] = Code;
-	else {
-		fillTable(codeTable, tree->left, Code*10 +1);
-		fillTable(codeTable, tree->right, Code*10 +2);
+	std::priority_queue <INode*, std::vector<INode*>, NodeCmp> trees;
+
+	for (int i = 0; i < UNIQUE_SYMBOLS; ++i) {
+		if (frequencies[i] != 0)
+			trees.push(new LeafNode (frequencies[i], (char) i));
 	}
 
-	return;
+	while (trees.size() > 1) {
+		INode * rightChild = trees.top();
+		trees.pop();
+
+		INode* leftChild = trees.top();
+		trees.pop();
+
+		INode* parent = new InternalNode(rightChild, leftChild);
+		trees.push(parent);
+	}
+
+	return trees.top();
 }
 
-void HuffmanCompressor::compressFile (std::string inFile, std::string outFile, int codeTable[]) {
-		char bit, c, x = 0;
+void HuffmanCompressor::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes) {
+	if (const LeafNode* lf = dynamic_cast <const LeafNode*> (node))
+		outCodes[lf->c] = prefix;
 
-		std::ifstream fin = std::ifstream(inFile, ios::in);
+	else if (const InternalNode* in = dynamic_cast <const InternalNode*> (node)) {
+		HuffCode leftPrefix = prefix;
+		leftPrefix.push_back(false);
+		GenerateCodes (in->left, leftPrefix, outCodes);
 
-		int n, length, bitsLeft = 8;
-		int originalBits = 0, compressedBits = 0;
-
-		while ((c = fin.get())!=10) {
-			originalBits++;
-
-			if (c==32) {
-				length = len(codeTable[26]);
-				n = codeTable[26];
-			}
-			else {
-				length = len(codeTable[c-97]);
-				n = codeTable[c-97];
-			}
-
-			while (length > 0) {
-				compressedBits ++;
-				bit = n % 10 - 1;
-				n /= 10;
-				x = x | bit;
-				bitsLeft--;
-				length--;
-
-				if (bitsLeft == 0) {
-					fputc(x,output);
-					x = 0;
-					bitsLeft = 8;
-				}
-
-				x = x << 1;
-			}
-		}
-
-		if (bitsLeft != 8) {
-			x = x << (bitsLeft - 1);
-			fputc(x,output);
-		}
-
-		/* PRINT */
-		cout << "Original bits = " << originalBits * 8 << endl;
-		cout << "Compressed bits = " << compressedBits << endl;
-		cout << "Compression = " << originalBits * 100 / compressedBits << endl;
-
-
-
+		HuffCode rightPrefix = prefix;
+		rightPrefix.push_back(true);
+		GenerateCodes (in->right, rightPrefix, outCodes);
 	}
-
+}
