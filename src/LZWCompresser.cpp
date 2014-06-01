@@ -1,6 +1,7 @@
 #include "LZWCompresser.h"
 #include "BitBuffer.h"
 #include "CompressionManager.h"
+#include "CompressionException.h"
 
 #include <fstream>
 #include <iostream>
@@ -119,6 +120,8 @@ void LZWCompresser::writeFile(const std::string& filename, const list<int>& resu
 		max = *it > max ? *it : max;
 
 	unsigned char nBits = (unsigned char) (log((float) max) / log(2.0)) + 1;
+	if (nBits <= 8 || nBits >= 16)
+		throw CompressionException("File cannot be compressed using LZW algorithm");
 
 
 	// Creating a bit buffer and output all data:
@@ -142,6 +145,8 @@ unsigned char LZWCompresser::readFile(const string& filename, BitBuffer* bitBuff
 	ifstream fin = ifstream(filename, ios::in | ios::binary);
 
 	unsigned char nBits = fin.get();
+	if (nBits <= 8 || nBits >= 16)
+		throw CompressionException("File cannot be decompressed using LZW algorithm");
 
 	bitBuffer->initialize(fileSize - 1, nBits);
 	fin >> *bitBuffer;

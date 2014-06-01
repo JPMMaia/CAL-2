@@ -14,7 +14,7 @@ int main(int argc, const char* argv [])
 		return 0;
 	}
 
-	CompressionManager manager;
+	CompressionManager manager = CompressionManager();
 	manager.run(argv[1], argv[2], argv[3]);
 
 	_getch();

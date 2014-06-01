@@ -32,10 +32,10 @@ void HuffmanCompressor::compressFile (const string& fileIn, const string& fileOu
 	for (HuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
 	{
 		/* Print the table to the console */
-		cout << it->first << " ";
+		/*cout << it->first << " ";
 		copy(it->second.begin(), it->second.end(),
 			ostream_iterator<bool>(cout));
-		cout << endl;
+		cout << endl;*/
 
 		/* Print the table to the file */
 
@@ -65,7 +65,7 @@ void HuffmanCompressor::compressFile (const string& fileIn, const string& fileOu
 	//fout << "Count = " << count << "\n";
 
 	BitBuffer* bitBuffer = new BitBuffer();
-	bitBuffer->initialize(count / 8);
+	bitBuffer->initialize(count / 8 + 1);
 	writeFile (translatedText, fout, bitBuffer);
 	delete bitBuffer;
 	fout.close();
@@ -105,16 +105,16 @@ void HuffmanCompressor::decompressFile (const std::string& fileIn, const std::st
 		codes.insert(std::pair<HuffCode, char> (currentCode, currentChar));
 	}
 
-	cout << "Reading done!" << endl;
+	//cout << "Reading done!" << endl;
 
-	for (DecodingHuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
+	/*for (DecodingHuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
 	{
-		/* Print the table to the console */
+		// Print the table to the console
 		cout << it->second << " ";
 		copy(it->first.begin(), it->first.end(),
 			ostream_iterator<bool>(cout));
 		cout << endl;
-	}
+	}*/
 	
 	int position = (int)fin.tellg();
  	int fileSize = CompressionManager::getFileSize(fileIn);
@@ -149,10 +149,10 @@ void HuffmanCompressor::decompressFile (const std::string& fileIn, const std::st
 	}
 	delete bitBuffer;
 
-	cout << text;
+	//cout << text;
 }
 
-string HuffmanCompressor::readFile (string fileIn) {
+string HuffmanCompressor::readFile (const string& fileIn) {
 	ifstream in (fileIn, ios::in | ios::binary);
 
 	if (in) {
@@ -223,7 +223,7 @@ void HuffmanCompressor::GenerateCodes(const INode* node, const HuffCode& prefix,
 	}
 }
 
-std::vector<HuffmanCompressor::HuffCode> HuffmanCompressor::translateFromText(std::string text, HuffCodeMap code) {
+std::vector<HuffmanCompressor::HuffCode> HuffmanCompressor::translateFromText(const std::string& text, const HuffCodeMap& code) {
 
 	vector<HuffCode> translatedText;
 
@@ -237,7 +237,7 @@ std::vector<HuffmanCompressor::HuffCode> HuffmanCompressor::translateFromText(st
 	return translatedText;
 }
 
-std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
+std::string HuffmanCompressor::HuffCodeToString(const HuffCode& code) {
 	stringstream ss;
 
 	for (unsigned int i = 0; i < code.size(); i++) {
@@ -250,7 +250,7 @@ std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
 	return ss.str();
 }
 
-void HuffmanCompressor::writeFile (std::vector<HuffCode> text, std::ofstream& out, BitBuffer* bitBuffer) {
+void HuffmanCompressor::writeFile (const std::vector<HuffCode>& text, std::ofstream& out, BitBuffer* bitBuffer) {
 
 	for (unsigned int i = 0; i < text.size(); i++) {
 		for (unsigned int j = 0; j < text[i].size(); j++) {

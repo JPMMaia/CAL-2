@@ -101,9 +101,6 @@ void BitBuffer::read(std::istream& is)
 	it = mBuffer->begin();
 	while (is.good())
 		*it++ = is.get();
-
-	while (is.good())
-		is.get();
 }
 
 bool BitBuffer::eof() const

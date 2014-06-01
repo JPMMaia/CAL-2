@@ -90,12 +90,12 @@ private:
 	INode * BuildTree (const int (&frequencies) [UNIQUE_SYMBOLS]);
 	
 	/* Reads a file and returns a string with it's content */
-	std::string readFile (std::string fileIn);
+	std::string readFile (const std::string& fileIn);
 
-	std::string HuffCodeToString(HuffCode code);
+	std::string HuffCodeToString(const HuffCode& code);
 	
-	std:: vector<HuffCode> translateFromText(std::string text, HuffCodeMap code);
+	std:: vector<HuffCode> translateFromText(const std::string& text, const HuffCodeMap& code);
 
 	/* Reads a vector of HuffCodes and writes it bit by bit to File */
-	void writeFile (std::vector<HuffCode> text, std::ofstream& out, BitBuffer* bitbuffer);
+	void writeFile (const std::vector<HuffCode>& text, std::ofstream& out, BitBuffer* bitbuffer);
 };
