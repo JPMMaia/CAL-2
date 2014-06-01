@@ -93,8 +93,6 @@ private:
 	std:: vector<HuffCode> translateFromText(std::string text, HuffCodeMap code);
 
 	/* Reads a vector of HuffCodes and writes it bit by bit to File */
-	void writeFile (std::vector<HuffCode> text, std::ofstream& out);
-
-	BitBuffer bitbuffer;
+	void writeFile (std::vector<HuffCode> text, std::ofstream& out, BitBuffer* bitBuffer);
 	
 };
