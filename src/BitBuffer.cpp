@@ -12,13 +12,9 @@ BitBuffer::~BitBuffer()
 	shutdown();
 }
 
-void BitBuffer::initialize(int nTotalBits)
+void BitBuffer::initialize(int nBytes)
 {
-	int bytes = nTotalBits / 8;
-	if (nTotalBits % 8 != 0)
-		bytes += 1;
-
-	mBuffer = new vector<char>(bytes);
+	mBuffer = new vector<char>(nBytes);
 	mBitIndex = 0;
 	mEof = false;
 }
@@ -105,6 +101,9 @@ void BitBuffer::read(std::istream& is)
 	it = mBuffer->begin();
 	while (is.good())
 		*it++ = is.get();
+
+	while (is.good())
+		is.get();
 }
 
 bool BitBuffer::eof() const

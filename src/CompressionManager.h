@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Huffman.h"
 #include <string>
 
 class CompressionManager
 {
 public:
-	void run(std::string fileToCompress, std::string compressedFile, std::string decompressedFile);
-	static int getFileSize(std::string file);
+	void run(const std::string& fileToCompress, const std::string& compressedFile, const std::string& decompressedFile);
+	static int getFileSize(const std::string& file);
 };
