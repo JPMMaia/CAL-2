@@ -9,7 +9,7 @@ using namespace std;
 void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 	string text = readFile (fileIn);
 
-	/* Construir a tabela de frequências */
+	/* Build a frequency table */
 	int frequencies[UNIQUE_SYMBOLS] = {0};
 
 	const char* ptr = text.c_str();
@@ -17,7 +17,7 @@ void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 	while (*ptr != '\0')
 		++frequencies[*ptr ++];
 
-	/* Criar a àrvore de Huffman */
+	/* Build the Huffman's tree */
 	INode* root = BuildTree (frequencies);
 
 	/* Instantiate the new Table of codes */

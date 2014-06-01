@@ -15,7 +15,7 @@ LZWCompresser::LZWCompresser()
 {
 }
 
-void LZWCompresser::compress(std::string fileIn, std::string fileOut)
+void LZWCompresser::compress(const std::string& fileIn, const std::string& fileOut)
 {
 	// Initializing dictionary:
 	map<string, int> dictionary;
@@ -58,7 +58,7 @@ void LZWCompresser::compress(std::string fileIn, std::string fileOut)
 	// Write a compressed file:
 	writeFile(fileOut, result);
 }
-void LZWCompresser::decompress(std::string fileIn, std::string fileOut)
+void LZWCompresser::decompress(const std::string& fileIn, const std::string& fileOut)
 {
 	unsigned int fileSize = CompressionManager::getFileSize(fileIn);
 
@@ -110,7 +110,7 @@ void LZWCompresser::decompress(std::string fileIn, std::string fileOut)
 	fout.close();
 }
 
-void LZWCompresser::writeFile(std::string filename, const list<int>& result)
+void LZWCompresser::writeFile(const std::string& filename, const list<int>& result)
 {
 	// Finding the max index, so we can calculate the number of bits needed to represent all indices:
 	int max = 0;
@@ -135,7 +135,7 @@ void LZWCompresser::writeFile(std::string filename, const list<int>& result)
 
 	fout.close();
 }
-unsigned char LZWCompresser::readFile(string filename, BitBuffer* bitBuffer)
+unsigned char LZWCompresser::readFile(const string& filename, BitBuffer* bitBuffer)
 {
 	int fileSize = CompressionManager::getFileSize(filename);
 

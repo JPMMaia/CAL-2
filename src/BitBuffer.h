@@ -9,6 +9,7 @@ public:
 	BitBuffer();
 	~BitBuffer();
 
+	void initialize(int nTotalBits);
 	void initialize(int nWords, unsigned char nBitsPerWord);
 	void shutdown();
 

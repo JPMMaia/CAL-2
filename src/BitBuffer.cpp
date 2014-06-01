@@ -12,9 +12,24 @@ BitBuffer::~BitBuffer()
 	shutdown();
 }
 
+void BitBuffer::initialize(int nTotalBits)
+{
+	int bytes = nTotalBits / 8;
+	if (nTotalBits % 8 != 0)
+		bytes += 1;
+
+	mBuffer = new vector<char>(bytes);
+	mBitIndex = 0;
+	mEof = false;
+}
+
 void BitBuffer::initialize(int nWords, unsigned char nBitsPerWord)
 {
-	mBuffer = new vector<char>((nWords * nBitsPerWord) / 8 + 1);
+	int bytes = (nWords * nBitsPerWord) / 8;
+	if ((nWords * nBitsPerWord) % 8 != 0)
+		bytes += 1;
+
+	mBuffer = new vector<char>(bytes);
 	mBitIndex = 0;
 	mEof = false;
 }

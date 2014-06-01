@@ -1,5 +1,6 @@
 #include "CompressionManager.h"
 #include "LZWCompresser.h"
+#include "Huffman.h"
 
 #include <iostream>
 #include <fstream>
@@ -18,13 +19,20 @@ void CompressionManager::run(std::string fileToCompress, std::string compressedF
 	float lzwRate = (float) lzwSize * 100 / (float) originalSize;
 
 
+	cout << "Running Huffman Compression..." << endl;
+	HuffmanCompressor huffman;
+	huffman.compressFile(fileToCompress, compressedFile);
+	// Falta o decompress file
+
+
+
 	cout << endl << endl << "Original Size:\t" << originalSize << endl;
 
 	cout << endl << "LZW Compression Results:" << endl;
 	cout << "\tOutput size:\t" << lzwSize << endl;
 	cout << "\tCompression:\t" << lzwRate << '%' << endl;
 
-	huffmanCompressor.compressFile(fileIn, fileOut);
+	
 }
 
 int CompressionManager::getFileSize(std::string file)
