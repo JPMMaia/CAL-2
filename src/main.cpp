@@ -7,20 +7,17 @@ using namespace std;
 
 int main(int argc, const char* argv [])
 {
-	if (argc != 3)
+	if (argc != 4)
 	{
-		cout << "Usage: compresser fileToCompress fileOut" << endl;
+		cout << "Usage: compresser fileToCompress compressedFile decompressedFile" << endl;
 		return 0;
 	}
 
-	/*
 	CompressionManager manager;
-	manager.run(argv[1], argv[2]);
-	*/
+	manager.run(argv[1], argv[2], argv[3]);
 
 	HuffmanCompressor compressor;
 	compressor.compressFile(argv[1], argv[2]);
-
 	_getch();
 
 	return 0;

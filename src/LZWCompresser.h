@@ -1,20 +1,20 @@
 #pragma once
 
-#include <map>
 #include <string>
 #include <list>
 
+class BitBuffer;
+
 class LZWCompresser
 {
-public:
+private:
 	LZWCompresser();
 
-	void compress(std::string fileIn, std::string fileOut);
-	void decompress(std::string fileIn, std::string fileOut);
+public:
+	static void compress(std::string fileIn, std::string fileOut);
+	static void decompress(std::string fileIn, std::string fileOut);
 
 private:
-	void writeFile(std::string filename);
-
-private:
-	std::list<int> mResult;
+	static void writeFile(std::string filename, const std::list<int>& result);
+	static unsigned char readFile(std::string filename, BitBuffer* bitBuffer);
 };
