@@ -60,9 +60,9 @@ void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 	
 	fout << "Count = " << count << "\n";
 
+	bitbuffer.initialize(count);
 
-
-	//writeFile (translatedText, fileOut);
+	writeFile (translatedText, fileOut);
 	delete root;
 	return;
 }
@@ -169,24 +169,20 @@ std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
 }
 
 void HuffmanCompressor::writeFile (std::vector<HuffCode> text, std::string fileOut) {
-	int nBits = 0;
-
-	char currentChar = 0;
+	
 
 	for (unsigned int i = 0; i < text.size(); i++) {
 
 		for (unsigned int j = 0; j < text[i].size(); j++) {
 
-			if (text [i] [j])
-
-			else 
+			bitbuffer.add(text[i][j], 1);
 				
 		}
 	}
 
-	while (nBits != 8) {
-		currentChar |= 0 << nBits ++;
-	}
+	ofstream out (fileOut, ios::out | ios::binary);
+
+	bitbuffer.write(out);
 
 	out.close();
 

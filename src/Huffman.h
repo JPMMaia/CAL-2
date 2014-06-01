@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BitBuffer.h"
+
 #include <stdio.h>
 #include <math.h>
 #include <string>
@@ -91,5 +93,6 @@ private:
 	/* Reads a vector of HuffCodes and writes it bit by bit to File */
 	void writeFile (std::vector<HuffCode> text, std::string fileOut);
 
+	BitBuffer bitbuffer;
 	
 };
