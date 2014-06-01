@@ -1,4 +1,5 @@
 #include "Huffman.h"
+#include "CompressionManager.h"
 
 #include <iostream>
 #include <fstream>
@@ -6,11 +7,8 @@
 
 using namespace std;
 
-void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
+void HuffmanCompressor::compressFile (const string& fileIn, const string& fileOut) {
 	string text = readFile (fileIn);
-
-	// Initializes the BitBuffer 
-	BitBuffer* bitBuffer = new BitBuffer();
 
 	/* Build a frequency table */
 	int frequencies[UNIQUE_SYMBOLS] = {0};
@@ -66,19 +64,19 @@ void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 
 	//fout << "Count = " << count << "\n";
 
-	bitBuffer->initialize(count);
-
+	BitBuffer* bitBuffer = new BitBuffer();
+	bitBuffer->initialize(count / 8);
 	writeFile (translatedText, fout, bitBuffer);
+	delete bitBuffer;
+	fout.close();
 
 	delete root;
 	return;
 }
 
-void HuffmanCompressor::decompressFile (std::string fileIn, std::string fileOut) {
+void HuffmanCompressor::decompressFile (const std::string& fileIn, const std::string& fileOut) {
 
-	ifstream fin = ifstream(fileIn, ios::in);
-	
-	BitBuffer* bitBuffer = new BitBuffer();
+	ifstream fin = ifstream(fileIn, ios::in | ios::binary);
 
 	DecodingHuffCodeMap codes;
 	char currentChar;
@@ -107,7 +105,7 @@ void HuffmanCompressor::decompressFile (std::string fileIn, std::string fileOut)
 		codes.insert(std::pair<HuffCode, char> (currentCode, currentChar));
 	}
 
-//	cout << "Reading done!" << endl;
+	cout << "Reading done!" << endl;
 
 	for (DecodingHuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
 	{
@@ -134,26 +132,32 @@ void HuffmanCompressor::decompressFile (std::string fileIn, std::string fileOut)
 	
 	bitBuffer->initialize(size);
 	bitBuffer->read(fin);
-
-	bool bit;
+	bitBuffer->initialize(length);
+	bitBuffer->read(fin);
+	fin.close();
 
 	// Create a new Code
-	HuffCode currentCode;
+	HuffCode currentCode = HuffCode(length * 8);
 	string text;
+	bool bit;
 
 	DecodingHuffCodeMap::iterator it;
-	
+
+	int i = 0;
 	while(!bitBuffer->eof())
 	{
-		bit = (bool) bitBuffer->get(1);
-		currentCode.push_back(bit);
+		bit = bitBuffer->get(1) & 0x01;
+		currentCode[i] = bit;
 
 		it = codes.find(currentCode);
 		if (it != codes.end()) {
 			//currentChar = codes.at(currentCode);
 			text.append(1,it->second);
 		}
+
+		i++;
 	}
+	delete bitBuffer;
 
 	cout << text;
 }
@@ -164,7 +168,7 @@ string HuffmanCompressor::readFile (string fileIn) {
 	if (in) {
 		string contents;
 		in.seekg(0,ios::end);
-		contents.resize(in.tellg());
+		contents.resize((unsigned int)in.tellg());
 		in.seekg(0,ios::beg);
 		in.read(&contents[0], contents.size());
 		in.close();
@@ -257,18 +261,11 @@ std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
 
 void HuffmanCompressor::writeFile (std::vector<HuffCode> text, std::ofstream& out, BitBuffer* bitBuffer) {
 
-
 	for (unsigned int i = 0; i < text.size(); i++) {
-
 		for (unsigned int j = 0; j < text[i].size(); j++) {
-
 			bitBuffer->add(text[i][j], 1);
-
 		}
 	}
 
 	bitBuffer->write(out);
-
-	out.close();
-
 }

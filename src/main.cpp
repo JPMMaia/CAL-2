@@ -1,4 +1,5 @@
 #include "CompressionManager.h"
+#include "Huffman.h"
 
 #include <iostream>
 #include <conio.h>
@@ -16,11 +17,6 @@ int main(int argc, const char* argv [])
 	CompressionManager manager;
 	manager.run(argv[1], argv[2], argv[3]);
 
-	HuffmanCompressor compressor;
-	compressor.compressFile(argv[1], argv[2]);
-
-	cout << "Compression done!" << endl;
-	compressor.decompressFile(argv[2], argv[3]);
 	_getch();
 
 	return 0;

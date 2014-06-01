@@ -72,9 +72,9 @@ public:
 	/* Create the conversion table */
 	void fillTable (int codeTable[], Node* tree, int Code);
 
-	void compressFile (std::string fileIn, std::string fileOut);
+	void compressFile (const std::string& fileIn, const std::string& fileOut);
 
-	void decompressFile (std::string fileIn, std::string fileOut);
+	void decompressFile (const std::string& fileIn, const std::string& fileOut);
 
 	/* Generate the table of codes based on the Huffman Tree */
 	void GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes);
@@ -93,6 +93,5 @@ private:
 	std:: vector<HuffCode> translateFromText(std::string text, HuffCodeMap code);
 
 	/* Reads a vector of HuffCodes and writes it bit by bit to File */
-	void writeFile (std::vector<HuffCode> text, std::ofstream& out, BitBuffer* bitBuffer);
-	
+	void writeFile (std::vector<HuffCode> text, std::ofstream& out, BitBuffer* bitbuffer);
 };
