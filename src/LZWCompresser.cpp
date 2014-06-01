@@ -118,7 +118,7 @@ void LZWCompresser::writeFile(std::string filename, const list<int>& result)
 	for (it = result.begin(); it != result.end(); it++)
 		max = *it > max ? *it : max;
 
-	unsigned char nBits = (unsigned char) (log(max) / log(2)) + 1;
+	unsigned char nBits = (unsigned char) (log((float) max) / log(2.0)) + 1;
 
 
 	// Creating a bit buffer and output all data:
