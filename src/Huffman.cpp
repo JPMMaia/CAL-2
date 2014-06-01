@@ -40,21 +40,35 @@ void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 		fout << it->first << "\0";
 		copy(it->second.begin(), it->second.end(),
 			ostream_iterator<bool>(fout));
-		fout << "\0";
+		fout << "\1";
 	}
 
-	fout << "\0";
+	fout << "\2";
 
 	fout << "\nINICIO DE TEXTO COMPRIMIDO\n";
 
 	vector<HuffCode> translatedText = translateFromText(text, codes);
 
-	for (unsigned int i = 0; i < translatedText.size(); i++) {
-		fout << HuffCodeToString(translatedText[i]) << "\n";
-	}
+	/* Count the number of bits needed for the compressed text */
+	
+	unsigned long count = 0;
 
+	for (unsigned int i = 0; i < translatedText.size(); i++) {
+		count += translatedText[i].size();
+		//fout << HuffCodeToString(translatedText[i]) << "\n";
+	}
+	
+	fout << "Count = " << count << "\n";
+
+
+
+	//writeFile (translatedText, fileOut);
 	delete root;
 	return;
+}
+
+void HuffmanCompressor::decompressFile (std::string fileIn, std::string fileOut) {
+
 }
 
 string HuffmanCompressor::readFile (string fileIn) {
@@ -141,7 +155,6 @@ std::vector<HuffmanCompressor::HuffCode> HuffmanCompressor::translateFromText(st
 	return translatedText;
 }
 
-
 std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
 	stringstream ss;
 
@@ -155,32 +168,26 @@ std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
 	return ss.str();
 }
 
-
 void HuffmanCompressor::writeFile (std::vector<HuffCode> text, std::string fileOut) {
 	int nBits = 0;
 
 	char currentChar = 0;
-
-	ofstream out (fileOut, ios::out | ios::binary);
 
 	for (unsigned int i = 0; i < text.size(); i++) {
 
 		for (unsigned int j = 0; j < text[i].size(); j++) {
 
 			if (text [i] [j])
-				currentChar |= 1 << nBits ++;
-			else 
-				currentChar |= 0 << nBits ++;
 
-			if (nBits == 8) {
-				out.put(currentChar);
-				nBits = 0;
-				currentChar = 0;
-			}
+			else 
+				
 		}
 	}
 
 	while (nBits != 8) {
 		currentChar |= 0 << nBits ++;
 	}
+
+	out.close();
+
 }
