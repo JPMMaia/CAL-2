@@ -18,6 +18,9 @@ int main(int argc, const char* argv [])
 
 	HuffmanCompressor compressor;
 	compressor.compressFile(argv[1], argv[2]);
+
+	cout << "Compression done!" << endl;
+	compressor.decompressFile(argv[2], argv[3]);
 	_getch();
 
 	return 0;

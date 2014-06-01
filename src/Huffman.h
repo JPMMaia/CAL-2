@@ -63,6 +63,8 @@ class HuffmanCompressor {
 	/* The table of codes is a map with the corresponding char and HuffCode */
 	typedef std:: map<char, HuffCode> HuffCodeMap;
 
+	typedef std:: map<HuffCode, char> DecodingHuffCodeMap;
+
 public:
 	/* Function to return the smallest sub-tree */
 	int findSmaller (Node *array[], int differentFrom);
@@ -91,7 +93,7 @@ private:
 	std:: vector<HuffCode> translateFromText(std::string text, HuffCodeMap code);
 
 	/* Reads a vector of HuffCodes and writes it bit by bit to File */
-	void writeFile (std::vector<HuffCode> text, std::string fileOut);
+	void writeFile (std::vector<HuffCode> text, std::ofstream& out);
 
 	BitBuffer bitbuffer;
 	

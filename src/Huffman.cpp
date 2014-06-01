@@ -26,7 +26,7 @@ void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 	GenerateCodes(root, HuffCode(), codes);
 
 
-	ofstream fout = ofstream(fileOut, ios::out | ios::binary);
+	ofstream fout = ofstream(fileOut, ios::out);
 
 	for (HuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
 	{
@@ -37,38 +37,103 @@ void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 		cout << endl;
 
 		/* Print the table to the file */
+
 		fout << it->first << "\0";
 		copy(it->second.begin(), it->second.end(),
 			ostream_iterator<bool>(fout));
 		fout << "\1";
+
 	}
+
 
 	fout << "\2";
 
-	fout << "\nINICIO DE TEXTO COMPRIMIDO\n";
-
+	//	fout << "\nINICIO DE TEXTO COMPRIMIDO\n";
+	
 	vector<HuffCode> translatedText = translateFromText(text, codes);
 
 	/* Count the number of bits needed for the compressed text */
-	
+
 	unsigned long count = 0;
 
 	for (unsigned int i = 0; i < translatedText.size(); i++) {
 		count += translatedText[i].size();
 		//fout << HuffCodeToString(translatedText[i]) << "\n";
 	}
-	
-	fout << "Count = " << count << "\n";
+
+	//fout << "Count = " << count << "\n";
 
 	bitbuffer.initialize(count);
 
-	writeFile (translatedText, fileOut);
+	writeFile (translatedText, fout);
 	delete root;
 	return;
 }
 
 void HuffmanCompressor::decompressFile (std::string fileIn, std::string fileOut) {
 
+	ifstream fin = ifstream(fileIn, ios::in);
+
+	DecodingHuffCodeMap codes;
+	char currentChar;
+
+	while (fin.good()) {
+		currentChar = fin.get();
+
+		// Check if the table has ended
+		if (currentChar == '\2')
+			break;
+
+		// Create a new Code
+		HuffCode currentCode;
+		char currentInput = currentChar;
+		while (currentInput != '\1') {
+			currentInput = fin.get();
+
+			if (currentInput == '0') {
+				currentCode.push_back(false);
+			} else if (currentInput == '1') {
+				currentCode.push_back(true);
+			}
+
+		}
+
+		codes.insert(std::pair<HuffCode, char> (currentCode, currentChar));
+	}
+
+	cout << "Reading done!" << endl;
+
+	for (DecodingHuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
+	{
+		/* Print the table to the console */
+		cout << it->second << " ";
+		copy(it->first.begin(), it->first.end(),
+			ostream_iterator<bool>(cout));
+		cout << endl;
+	}
+
+	BitBuffer* bitBuffer = new BitBuffer();
+	bool bit;
+
+	// Create a new Code
+	HuffCode currentCode;
+	string text;
+
+	DecodingHuffCodeMap::iterator it;
+
+	while(!bitbuffer.eof())
+	{
+		bit = (bool) bitbuffer.get(1);
+		currentCode.push_back(bit);
+
+		it = codes.find(currentCode);
+		if (it != codes.end()) {
+			//currentChar = codes.at(currentCode);
+			text.append(1,it->second);
+		}
+	}
+
+	cout << text;
 }
 
 string HuffmanCompressor::readFile (string fileIn) {
@@ -168,19 +233,17 @@ std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
 	return ss.str();
 }
 
-void HuffmanCompressor::writeFile (std::vector<HuffCode> text, std::string fileOut) {
-	
+void HuffmanCompressor::writeFile (std::vector<HuffCode> text, std::ofstream& out) {
+
 
 	for (unsigned int i = 0; i < text.size(); i++) {
 
 		for (unsigned int j = 0; j < text[i].size(); j++) {
 
 			bitbuffer.add(text[i][j], 1);
-				
+
 		}
 	}
-
-	ofstream out (fileOut, ios::out | ios::binary);
 
 	bitbuffer.write(out);
 
