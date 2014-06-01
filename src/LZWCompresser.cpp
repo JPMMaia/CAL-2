@@ -1,9 +1,13 @@
 #include "LZWCompresser.h"
+#include "BitBuffer.h"
+#include "CompressionManager.h"
 
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <math.h>
+#include <map>
+#include <vector>
 
 using namespace std;
 
@@ -18,15 +22,18 @@ void LZWCompresser::compress(std::string fileIn, std::string fileOut)
 	for (unsigned int i = 0; i < 256; i++)
 		dictionary[string(1, i)] = i;
 
-	ifstream fin = ifstream(fileIn, ios::in);
 
+	ifstream fin;
 	int index = 256;
-	string w = "";
+	string w;
 	char k;
+	list<int> result;
 
-	k = fin.get();
+	fin.open(fileIn, ios::in);
+	w = fin.get();
 	while (fin.good())
 	{
+		k = fin.get();
 		string wk = w + k;
 		// If the key exists in the dictionary:
 		if (dictionary.find(wk) != dictionary.end())
@@ -36,98 +43,110 @@ void LZWCompresser::compress(std::string fileIn, std::string fileOut)
 		else
 		{
 			// Outputting code:
-			mResult.push_back(dictionary[w]);
+			result.push_back(dictionary[w]);
 
 			// Adding new code to the dictionary:
 			dictionary[wk] = index++;
 			w = k;
 		}
-
-		k = fin.get();
 	}
+	fin.close();
 
 	// Outputting final code:
-	mResult.push_back(dictionary[w]);
-	fin.close();
+	result.push_back(dictionary[w]);
 
 	// Write a compressed file:
-	writeFile(fileOut);
+	writeFile(fileOut, result);
 }
-
 void LZWCompresser::decompress(std::string fileIn, std::string fileOut)
 {
+	unsigned int fileSize = CompressionManager::getFileSize(fileIn);
+
+	// Reading file and converting it to a bit buffer:
+	BitBuffer* bitBuffer = new BitBuffer();
+	unsigned char nBits = readFile(fileIn, bitBuffer);
+
+	// Decompressing data from file:
+	vector<int> result = vector<int>(fileSize * 8 / nBits);
+	for (unsigned int i = 0; i < result.size(); i++)
+		result[i] = bitBuffer->get(nBits);
+
+	// Releasing buffer as it is no longer needed:
+	delete bitBuffer;
+
+
 	// Initializing dictionary:
-	map<string, int> dictionary;
+	map<int, string> dictionary;
 	for (unsigned int i = 0; i < 256; i++)
-		dictionary[string(1, i)] = i;
+		dictionary[i] = string(1, i);
 
-	// Opening compressed file:
-	ifstream fin = ifstream(fileIn, ios::in | ios::binary);
+	ofstream fout;
+	unsigned int index = 256;
 
-	// Reading the number of bits used for the compression process:
-	unsigned char nBits = fin.get();
+	// Open file:
+	fout.open(fileOut, ios::out);
 
-	/*
-	01 02 03 04
-	05 06 07 08
-	09 10 11 12
-	13 14 15 16
-	17 18 19 20
-
-	01 02 03 04 05
-	06 07 08 09 10
-	11 12 13 14 15
-	*/
-
-	int index = 0;
-	char remainder = 0;
-	list<int> result;
-
-	while (fin.good())
+	// Read current code:
+	int current = result[0];
+	// Outputting current code translation:
+	fout << dictionary[current];
+	for (unsigned int i = 1; i < result.size(); i++)
 	{
-		unsigned short word;
-		word = fin.get();
-		word |= fin.get() << 8;
+		// Read next code:
+		int next = result[i];
+		// Get translation of the next code:
+		string word = dictionary[next];
+		// Outputting translation:
+		fout << word;
 
-		index = (index + nBits) % 16;
-		result.push_back((word & (0xFF >> 16 - index)) | remainder);
-		remainder = word >> index;
+		// Getting the first character in the next translation:
+		char k = word[0];
+		// Adding current translation + first character in the next translation to the dictionary:
+		dictionary[index++] = dictionary[current] + k;
+		current = next;
 	}
 
-	fin.close();
+	// Close file:
+	fout.close();
 }
 
-void LZWCompresser::writeFile(std::string filename)
+void LZWCompresser::writeFile(std::string filename, const list<int>& result)
 {
 	// Finding the max index, so we can calculate the number of bits needed to represent all indices:
 	int max = 0;
-	list<int>::iterator it = mResult.begin();
-	for (it = mResult.begin(); it != mResult.end(); it++)
-	{
+	list<int>::const_iterator it = result.begin();
+	for (it = result.begin(); it != result.end(); it++)
 		max = *it > max ? *it : max;
-	}
 
 	unsigned char nBits = (unsigned char) (log(max) / log(2)) + 1;
 
+
+	// Creating a bit buffer and output all data:
+	BitBuffer bitBuffer;
+	bitBuffer.initialize(result.size(), nBits);
+	for (it = result.begin(); it != result.end(); it++)
+		bitBuffer.add(*it, nBits);
+
+
 	ofstream fout = ofstream(filename, ios::out | ios::binary);
 
-	// The file was compressed using nBits. This is important for decompressing:
-	fout.put(nBits);
-
-	int index = 0;
-	char out;
-	char remainder = mResult.front();
-	for (it = mResult.begin(); it != mResult.end(); it++)
-	{
-		out = ((*it << (nBits - index)) | remainder) & 0xFF;
-		fout.put(out);
-
-		index = (index + 8) % nBits;
-		remainder = *it >> index;
-	}
-
-	if (remainder)
-		fout.put(remainder);
+	fout.put(nBits); // The file was compressed using nBits. This is important for decompressing
+	fout << bitBuffer; // Writing all data to the file
 
 	fout.close();
+}
+unsigned char LZWCompresser::readFile(string filename, BitBuffer* bitBuffer)
+{
+	int fileSize = CompressionManager::getFileSize(filename);
+
+	ifstream fin = ifstream(filename, ios::in | ios::binary);
+
+	unsigned char nBits = fin.get();
+
+	bitBuffer->initialize(fileSize - 1, nBits);
+	fin >> *bitBuffer;
+
+	fin.close();
+
+	return nBits;
 }
