@@ -72,7 +72,6 @@ public:
 
 	void GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes);
 	
-	std:: vector<HuffCode> translateFromText(std::string text, HuffCodeMap code);
 
 private:	
 	
@@ -83,5 +82,10 @@ private:
 	std::string readFile (std::string fileIn);
 
 	std::string HuffCodeToString(HuffCode code);
+	
+	std:: vector<HuffCode> translateFromText(std::string text, HuffCodeMap code);
+
+	/* Reads a vector of HuffCodes and writes it bit by bit to File */
+	void writeFile (std::vector<HuffCode> text, std::string fileOut);
 
 };

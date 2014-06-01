@@ -25,7 +25,7 @@ void HuffmanCompressor::compressFile (string fileIn, string fileOut) {
 	/* Generate the codes for the Table */
 	GenerateCodes(root, HuffCode(), codes);
 
-	
+
 	ofstream fout = ofstream(fileOut, ios::out | ios::binary);
 
 	for (HuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
@@ -85,7 +85,7 @@ INode * HuffmanCompressor::BuildTree (const int (&frequencies) [UNIQUE_SYMBOLS])
 
 	/* While there is more than one tree */
 	while (trees.size() > 1) {
-		
+
 		/* Select the two nodes with smallest frequencies wich are located at the top of the priority queue */
 		INode * rightChild = trees.top();
 		trees.pop();
@@ -105,7 +105,7 @@ INode * HuffmanCompressor::BuildTree (const int (&frequencies) [UNIQUE_SYMBOLS])
 }
 
 void HuffmanCompressor::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes) {
-	
+
 	/* Prefix starts null */
 	if (const LeafNode* lf = dynamic_cast <const LeafNode*> (node))
 		/* Sets the code of the actual node to the actual prefix */
@@ -118,7 +118,7 @@ void HuffmanCompressor::GenerateCodes(const INode* node, const HuffCode& prefix,
 		leftPrefix.push_back(false);
 		/* Recursively call this function for the left Node */
 		GenerateCodes (in->left, leftPrefix, outCodes);
-		
+
 		/* Create a new prefix to treat the right Node, equal to the actual prefix */
 		HuffCode rightPrefix = prefix;
 		/* Add a 1 to the prefix */
@@ -133,7 +133,7 @@ std::vector<HuffmanCompressor::HuffCode> HuffmanCompressor::translateFromText(st
 	vector<HuffCode> translatedText;
 
 	const char* c = text.c_str();
-	
+
 	for (unsigned int i = 0; i < text.size(); i++) {
 		translatedText.push_back(code.at(c[i]));
 	}
@@ -153,4 +153,34 @@ std::string HuffmanCompressor::HuffCodeToString(HuffCode code) {
 	}
 
 	return ss.str();
+}
+
+
+void HuffmanCompressor::writeFile (std::vector<HuffCode> text, std::string fileOut) {
+	int nBits = 0;
+
+	char currentChar = 0;
+
+	ofstream out (fileOut, ios::out | ios::binary);
+
+	for (unsigned int i = 0; i < text.size(); i++) {
+
+		for (unsigned int j = 0; j < text[i].size(); j++) {
+
+			if (text [i] [j])
+				currentChar |= 1 << nBits ++;
+			else 
+				currentChar |= 0 << nBits ++;
+
+			if (nBits == 8) {
+				out.put(currentChar);
+				nBits = 0;
+				currentChar = 0;
+			}
+		}
+	}
+
+	while (nBits != 8) {
+		currentChar |= 0 << nBits ++;
+	}
 }
