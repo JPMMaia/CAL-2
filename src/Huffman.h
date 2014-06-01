@@ -66,22 +66,26 @@ class HuffmanCompressor {
 	typedef std:: map<HuffCode, char> DecodingHuffCodeMap;
 
 public:
-	/* Function to return the smallest sub-tree */
-	int findSmaller (Node *array[], int differentFrom);
 
-	/* Create the conversion table */
-	void fillTable (int codeTable[], Node* tree, int Code);
+	
 
 	void compressFile (const std::string& fileIn, const std::string& fileOut);
 
 	void decompressFile (const std::string& fileIn, const std::string& fileOut);
 
+	
+
+private:
+
 	/* Generate the table of codes based on the Huffman Tree */
 	void GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes);
 	
-
-private:	
+	/* Create the conversion table */
+	void fillTable (int codeTable[], Node* tree, int Code);
 	
+	/* Function to return the smallest sub-tree */
+	int findSmaller (Node *array[], int differentFrom);
+
 	/* Based on the frequencies of the characters builds the Huffman tree */
 	INode * BuildTree (const int (&frequencies) [UNIQUE_SYMBOLS]);
 	

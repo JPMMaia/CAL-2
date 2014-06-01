@@ -115,25 +115,15 @@ void HuffmanCompressor::decompressFile (const std::string& fileIn, const std::st
 			ostream_iterator<bool>(cout));
 		cout << endl;
 	}
-
-	//Need to read rest of file and get size in bytes
-	int currentPos = fin.tellg();
 	
-    fin.seekg (0, fin.end);
+	int position = (int)fin.tellg();
+ 	int fileSize = CompressionManager::getFileSize(fileIn);
+ 	int length = fileSize - position + 1;
+ 
+  	BitBuffer* bitBuffer = new BitBuffer();
 
-	int endPos = fin.tellg();
-
-	int size = endPos - currentPos;
-
-	fin.seekg (0, fin.beg);
-
-	while (currentChar != '\2')
-		currentChar = fin.get();
-	
-	bitBuffer->initialize(size);
-	bitBuffer->read(fin);
-	bitBuffer->initialize(length);
-	bitBuffer->read(fin);
+ 	bitBuffer->initialize(length);
+ 	bitBuffer->read(fin);
 	fin.close();
 
 	// Create a new Code
@@ -238,6 +228,7 @@ std::vector<HuffmanCompressor::HuffCode> HuffmanCompressor::translateFromText(st
 	vector<HuffCode> translatedText;
 
 	const char* c = text.c_str();
+	translatedText.reserve(text.size());
 
 	for (unsigned int i = 0; i < text.size(); i++) {
 		translatedText.push_back(code.at(c[i]));
