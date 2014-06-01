@@ -5,12 +5,10 @@
 
 #include <string>
 
-class CompressionManager
-{
+class CompressionManager {
 public:
 	void run(std::string fileIn, std::string fileOut);
-
-
+	
 private:
 	int getFileSize(std::string file);
 

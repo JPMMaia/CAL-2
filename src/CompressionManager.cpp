@@ -7,6 +7,7 @@ using namespace std;
 
 void CompressionManager::run(std::string fileIn, std::string fileOut)
 {
+	/*
 	int originalSize = getFileSize(fileIn);
 
 	cout << "Running LZW Compression..." << endl;
@@ -22,6 +23,7 @@ void CompressionManager::run(std::string fileIn, std::string fileOut)
 	cout << endl << "LZW Compression Results:" << endl;
 	cout << "\tOutput size:\t" << lzwSize << endl;
 	cout << "\tCompression:\t" << lzwRate << '%' << endl;
+	*/
 
 	huffmanCompressor.compressFile(fileIn, fileOut);
 }
