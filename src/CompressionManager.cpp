@@ -23,6 +23,8 @@ void CompressionManager::run(std::string fileToCompress, std::string compressedF
 	cout << endl << "LZW Compression Results:" << endl;
 	cout << "\tOutput size:\t" << lzwSize << endl;
 	cout << "\tCompression:\t" << lzwRate << '%' << endl;
+
+	huffmanCompressor.compressFile(fileIn, fileOut);
 }
 
 int CompressionManager::getFileSize(std::string file)

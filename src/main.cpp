@@ -16,6 +16,8 @@ int main(int argc, const char* argv [])
 	CompressionManager manager;
 	manager.run(argv[1], argv[2], argv[3]);
 
+	HuffmanCompressor compressor;
+	compressor.compressFile(argv[1], argv[2]);
 	_getch();
 
 	return 0;

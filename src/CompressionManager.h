@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Huffman.h"
 #include <string>
 
 class CompressionManager
